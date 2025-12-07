@@ -1,149 +1,157 @@
-const loginForm = document.getElementById('login-form');
-const errorMessage = document.getElementById('error-message');
+/**
+ * Authentication Module
+ * Handles login, logout, and role-based access
+ */
+
+// ==================== LOGIN ====================
+const loginForm = document.getElementById("login-form");
+const errorMessage = document.getElementById("error-message");
 
 if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        // Clear previous error
-        errorMessage.style.display = 'none';
-        errorMessage.textContent = '';
+  loginForm.addEventListener("submit", handleLogin);
+}
 
-        try {
-            const response = await fetch(SERVER_URL + 'api/v1/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
+async function handleLogin(e) {
+  e.preventDefault();
 
-            const data = await response.json();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-            if (response.ok) {
-                // Check for admin role in token
-                const payload = parseJwt(data.accessToken);
+  // Clear previous errors
+  clearError();
 
-                if (payload && (payload.role === 'admin' || payload.Role === 'admin')) {
-                    // Save tokens in cookies
-                    setCookie('accessToken', data.accessToken, 1); // 1 day
-                    setCookie('refreshToken', data.refreshToken, 7); // 7 days
-                    setCookie('userId', data.userId, 7);
-                    
-                    // Redirect to dashboard
-                    window.location.href = 'index.html';
-                } else {
-                    console.warn('Access denied. Role is:', payload ? payload.role : 'undefined');
-                    showError('Access denied. Admin privileges required.');
-                }
-            } else {
-                showError(data.message || 'Invalid email or password');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            showError('Connection error. Please try again.');
-        }
+  // Validate input
+  if (!email || !password) {
+    showError("Please enter both email and password");
+    return;
+  }
+
+  try {
+    const response = await fetch(SERVER_URL + "api/v1/auth/login", {
+      method: "POST",
+      credentials: "include", // Important: Send/receive HTTP-only cookies
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
     });
-}
 
-function parseJwt(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+    const data = await response.json();
 
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        return null;
+    if (response.ok) {
+      // Backend has set HTTP-only cookies with the accessToken
+      // Redirect to dashboard
+      window.location.href = "index.html";
+    } else {
+      showError(data.message || "Login failed. Please check your credentials.");
     }
+  } catch (error) {
+    console.error("Login error:", error);
+    showError("Connection error. Please try again.");
+  }
 }
 
-function showError(message) {
-    errorMessage.textContent = message;
-    errorMessage.style.display = 'block';
-}
-
-// Logout function
-async function logout() {
-    const refreshToken = getCookie('refreshToken');
-    if (refreshToken) {
-        try {
-            await fetch(SERVER_URL + 'api/v1/auth/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ token: refreshToken })
-            });
-        } catch (error) {
-            console.error('Logout error:', error);
-        }
-    }
-    
-    eraseCookie('accessToken');
-    eraseCookie('refreshToken');
-    eraseCookie('userId');
-    window.location.href = 'login.html';
-}
-
-const signupForm = document.getElementById('signup-form');
+// ==================== SIGNUP ====================
+const signupForm = document.getElementById("signup-form");
 
 if (signupForm) {
-    signupForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const email = document.getElementById('email').value;
-        const phone = document.getElementById('phone').value;
-        const address = document.getElementById('address').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        
-        // Clear previous error
-        errorMessage.style.display = 'none';
-        errorMessage.textContent = '';
-
-        // Validate passwords match
-        if (password !== confirmPassword) {
-            showError('Passwords do not match');
-            return;
-        }
-
-        try {
-            const response = await fetch(SERVER_URL + 'api/v1/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    username: firstName,
-                    last_name: lastName,
-                    email, 
-                    password, 
-                    phone_number: phone,
-                    address,
-                    role: 'user' 
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                alert('Account created successfully! Please sign in.');
-                window.location.href = 'login.html';
-            } else {
-                showError(data.message || 'Failed to create account');
-            }
-        } catch (error) {
-            console.error('Signup error:', error);
-            showError('Connection error. Please try again.');
-        }
-    });
+  signupForm.addEventListener("submit", handleSignup);
 }
 
+async function handleSignup(e) {
+  e.preventDefault();
+
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  // Clear previous errors
+  clearError();
+
+  // Validate input
+  if (!firstName || !lastName || !email || !password) {
+    showError("Please fill in all required fields");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    showError("Passwords do not match");
+    return;
+  }
+
+  if (password.length < 6) {
+    showError("Password must be at least 6 characters");
+    return;
+  }
+
+  try {
+    const response = await fetch(SERVER_URL + "api/v1/users", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: firstName,
+        last_name: lastName,
+        email,
+        password,
+        phone_number: phone,
+        address,
+        role: "user",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("Account created successfully! Please sign in.");
+      window.location.href = "login.html";
+    } else {
+      showError(data.message || "Failed to create account");
+    }
+  } catch (error) {
+    console.error("Signup error:", error);
+    showError("Connection error. Please try again.");
+  }
+}
+
+// ==================== LOGOUT ====================
+async function logout() {
+  try {
+    await fetch(SERVER_URL + "api/v1/auth/logout", {
+      method: "POST",
+      credentials: "include", // Important: Send cookies to backend for revocation
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+  } finally {
+    // Redirect to login regardless of success (user is logged out locally)
+    window.location.href = "login.html";
+  }
+}
+
+// ==================== UTILITY FUNCTIONS ====================
+function showError(message) {
+  if (!errorMessage) return;
+  errorMessage.textContent = message;
+  errorMessage.style.display = "block";
+}
+
+function clearError() {
+  if (!errorMessage) return;
+  errorMessage.textContent = "";
+  errorMessage.style.display = "none";
+}
+
+// ==================== MAKE FUNCTIONS GLOBAL ====================
+window.handleLogin = handleLogin;
+window.handleSignup = handleSignup;
+window.logout = logout;
