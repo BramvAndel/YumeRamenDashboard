@@ -1,6 +1,17 @@
 // Initial load
-fetchOrders();
-fetchMeals();
+document.addEventListener('DOMContentLoaded', () => {
+    // Restore active tab
+    const activeTab = getCookie('activeTab');
+    if (activeTab) {
+        showTab(activeTab);
+    } else {
+        // Default to dashboard if no tab saved
+        showTab('dashboard');
+    }
+
+    fetchOrders();
+    fetchMeals();
+});
 
 // Global Event Listeners
 window.onclick = function(event) {

@@ -1,5 +1,8 @@
 // Tab Switching Logic
 function showTab(tabId) {
+    // Save current tab to cookie
+    setCookie('activeTab', tabId, 7);
+
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -43,7 +46,7 @@ function displayErrorState(message) {
 }
 
 async function authenticatedFetch(url, options = {}) {
-    let token = localStorage.getItem('accessToken');
+    let token = getCookie('accessToken');
     
     if (!token) {
         window.location.href = 'login.html';
@@ -59,12 +62,10 @@ async function authenticatedFetch(url, options = {}) {
     // Handle both 401 (Unauthorized) and 403 (Forbidden) for token refresh
     // Some backends return 403 for expired tokens instead of 401
     if (response.status === 401 || response.status === 403) {
-        console.log(`Received ${response.status}, attempting token refresh...`);
         
         // Token might be expired, try to refresh
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = getCookie('refreshToken');
         if (!refreshToken) {
-            console.warn('No refresh token found, redirecting to login.');
             window.location.href = 'login.html';
             return;
         }
@@ -78,8 +79,7 @@ async function authenticatedFetch(url, options = {}) {
 
             if (refreshResponse.ok) {
                 const data = await refreshResponse.json();
-                console.log('Token refresh successful.');
-                localStorage.setItem('accessToken', data.accessToken);
+                setCookie('accessToken', data.accessToken, 1); // 1 day expiry for access token
                 // Retry original request with new token
                 options.headers['Authorization'] = `Bearer ${data.accessToken}`;
                 response = await fetch(url, options);
@@ -98,7 +98,7 @@ async function authenticatedFetch(url, options = {}) {
 }
 
 function logout() {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = getCookie('refreshToken');
     if (refreshToken) {
         // Use fetch without await since we're redirecting anyway
         // and don't want to block the UI
@@ -111,8 +111,9 @@ function logout() {
         }).catch(err => console.error('Logout error:', err));
     }
 
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    eraseCookie('accessToken');
+    eraseCookie('refreshToken');
+    eraseCookie('userId');
     window.location.href = 'login.html';
 }
 

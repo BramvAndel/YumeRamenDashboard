@@ -26,12 +26,12 @@ if (loginForm) {
             if (response.ok) {
                 // Check for admin role in token
                 const payload = parseJwt(data.accessToken);
-                console.log('Decoded JWT Payload:', payload); // Debugging
 
                 if (payload && (payload.role === 'admin' || payload.Role === 'admin')) {
-                    // Save tokens
-                    localStorage.setItem('accessToken', data.accessToken);
-                    localStorage.setItem('refreshToken', data.refreshToken);
+                    // Save tokens in cookies
+                    setCookie('accessToken', data.accessToken, 1); // 1 day
+                    setCookie('refreshToken', data.refreshToken, 7); // 7 days
+                    setCookie('userId', data.userId, 7);
                     
                     // Redirect to dashboard
                     window.location.href = 'index.html';
@@ -70,7 +70,7 @@ function showError(message) {
 
 // Logout function
 async function logout() {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = getCookie('refreshToken');
     if (refreshToken) {
         try {
             await fetch(SERVER_URL + 'api/v1/auth/logout', {
@@ -85,8 +85,9 @@ async function logout() {
         }
     }
     
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    eraseCookie('accessToken');
+    eraseCookie('refreshToken');
+    eraseCookie('userId');
     window.location.href = 'login.html';
 }
 
@@ -96,13 +97,23 @@ if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const username = document.getElementById('username').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
         const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
         const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
         
         // Clear previous error
         errorMessage.style.display = 'none';
         errorMessage.textContent = '';
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            showError('Passwords do not match');
+            return;
+        }
 
         try {
             const response = await fetch(SERVER_URL + 'api/v1/users', {
@@ -110,7 +121,15 @@ if (signupForm) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, email, password, role: 'user' })
+                body: JSON.stringify({ 
+                    username: firstName,
+                    last_name: lastName,
+                    email, 
+                    password, 
+                    phone_number: phone,
+                    address,
+                    role: 'user' 
+                })
             });
 
             const data = await response.json();
