@@ -6,6 +6,7 @@
 // ==================== AUTHENTICATED FETCH ====================
 /**
  * Wrapper around fetch() that automatically includes credentials (HTTP-only cookies)
+ * Handles token refresh on 401 responses
  * @param {string} url - The endpoint URL
  * @param {object} options - Fetch options (method, headers, body, etc.)
  * @returns {Promise<Response>} - The response object
@@ -20,7 +21,32 @@ async function authenticatedFetch(url, options = {}) {
   };
 
   const finalOptions = { ...defaultOptions, ...options };
-  const response = await fetch(url, finalOptions);
+  let response = await fetch(url, finalOptions);
+
+  // If 401 Unauthorized, try to refresh the token
+  if (response.status === 401) {
+    try {
+      const refreshResponse = await fetch(SERVER_URL + "api/v1/auth/refresh", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (refreshResponse.ok) {
+        // Token refreshed successfully, retry the original request
+        response = await fetch(url, finalOptions);
+      } else {
+        // Refresh failed, redirect to login
+        window.location.href = "login.html";
+        return response;
+      }
+    } catch (error) {
+      console.error("Token refresh failed:", error);
+      window.location.href = "login.html";
+    }
+  }
 
   return response;
 }

@@ -26,23 +26,30 @@
         </div>
         <ul class="nav-links">
           <li class="active" onclick="showTab('dashboard')">
-            <i class="fas fa-chart-pie"></i> Dashboard
+            <i class="fas fa-chart-pie"></i>
+            <span class="nav-text">Dashboard</span>
           </li>
-          <li onclick="showTab('active-orders')">
-            <i class="fas fa-fire"></i> Active Orders
+          <li onclick="showTab('active-orders')" style="position: relative">
+            <i class="fas fa-fire"></i>
+            <span class="nav-text">Active Orders</span>
             <span id="active-orders-badge" class="badge" style="display: none"
               >0</span
             >
           </li>
           <li onclick="showTab('completed-orders')">
-            <i class="fas fa-check-circle"></i> Completed Orders
+            <i class="fas fa-check-circle"></i>
+            <span class="nav-text">Completed Orders</span>
           </li>
           <li onclick="showTab('menu-management')">
-            <i class="fas fa-utensils"></i> Menu Management
+            <i class="fas fa-utensils"></i>
+            <span class="nav-text">Menu Management</span>
           </li>
         </ul>
-        <ul class="nav-links" style="margin-top: auto">
-          <li onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</li>
+        <ul class="nav-links logout-link">
+          <li onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="nav-text">Logout</span>
+          </li>
         </ul>
       </nav>
 
