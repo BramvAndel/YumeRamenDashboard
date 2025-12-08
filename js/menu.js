@@ -132,7 +132,7 @@ async function handleMealSubmit(event) {
   const name = document.getElementById("meal-name").value;
   const price = document.getElementById("meal-price").value;
   const ingredients = document.getElementById("meal-ingredients").value;
-  const imageInput = document.getElementById("meal-image");
+  // const imageInput = document.getElementById("meal-image");
 
   if (showMode) {
     const mealData = {
@@ -167,18 +167,18 @@ async function handleMealSubmit(event) {
       method = "PUT";
     }
 
-    const formData = new FormData();
-    formData.append("Name", name);
-    formData.append("Price", price);
-    formData.append("Ingredients", ingredients);
-
-    if (imageInput.files[0]) {
-      formData.append("image", imageInput.files[0]);
-    }
+    const mealData = {
+      Name: name,
+      Price: price,
+      Ingredients: ingredients,
+    };
 
     const response = await authenticatedFetch(url, {
       method: method,
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(mealData),
     });
 
     if (!response) return;
