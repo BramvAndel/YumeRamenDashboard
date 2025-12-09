@@ -174,35 +174,6 @@ async function handleMealSubmit(event) {
     formData.append("Ingredients", ingredients);
     formData.append("image", imageInput.files[0]);
 
-
-    // Check and print FormData fields
-    let missingFields = [];
-    if (!name) missingFields.push("Name");
-    if (!price) missingFields.push("Price");
-    if (!ingredients) missingFields.push("Ingredients");
-    if (!imageInput.files[0]) missingFields.push("image");
-
-    if (missingFields.length > 0) {
-      console.warn("Missing required fields:", missingFields.join(", "));
-    } else {
-      console.log("All required fields are set.");
-    }
-
-    // Print all FormData key-value pairs
-    for (let pair of formData.entries()) {
-      if (pair[1] instanceof File) {
-        console.log(
-          pair[0],
-          "[File]",
-          pair[1].name,
-          pair[1].type,
-          pair[1].size + " bytes"
-        );
-      } else {
-        console.log(pair[0], pair[1]);
-      }
-    }
-
     const response = await authenticatedFetch(url, {
       method: method,
       body: formData,
