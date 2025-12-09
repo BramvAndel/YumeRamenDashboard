@@ -132,7 +132,7 @@ async function handleMealSubmit(event) {
   const name = document.getElementById("meal-name").value;
   const price = document.getElementById("meal-price").value;
   const ingredients = document.getElementById("meal-ingredients").value;
-  // const imageInput = document.getElementById("meal-image");
+  const imageInput = document.getElementById("meal-image");
 
   if (showMode) {
     const mealData = {
@@ -167,18 +167,45 @@ async function handleMealSubmit(event) {
       method = "PUT";
     }
 
-    const mealData = {
-      Name: name,
-      Price: price,
-      Ingredients: ingredients,
-    };
+    // Build FormData
+    const formData = new FormData();
+    formData.append("Name", name);
+    formData.append("Price", price);
+    formData.append("Ingredients", ingredients);
+    formData.append("image", imageInput.files[0]);
+
+
+    // Check and print FormData fields
+    let missingFields = [];
+    if (!name) missingFields.push("Name");
+    if (!price) missingFields.push("Price");
+    if (!ingredients) missingFields.push("Ingredients");
+    if (!imageInput.files[0]) missingFields.push("image");
+
+    if (missingFields.length > 0) {
+      console.warn("Missing required fields:", missingFields.join(", "));
+    } else {
+      console.log("All required fields are set.");
+    }
+
+    // Print all FormData key-value pairs
+    for (let pair of formData.entries()) {
+      if (pair[1] instanceof File) {
+        console.log(
+          pair[0],
+          "[File]",
+          pair[1].name,
+          pair[1].type,
+          pair[1].size + " bytes"
+        );
+      } else {
+        console.log(pair[0], pair[1]);
+      }
+    }
 
     const response = await authenticatedFetch(url, {
       method: method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(mealData),
+      body: formData,
     });
 
     if (!response) return;

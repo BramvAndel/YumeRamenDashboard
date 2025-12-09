@@ -197,6 +197,10 @@ h1 {
   gap: 25px;
 }
 
+#orders {
+  display: none;
+}
+
 .order-card {
   background: var(--card-bg);
   padding: 25px;

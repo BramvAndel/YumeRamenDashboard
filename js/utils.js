@@ -12,33 +12,33 @@
  * @returns {Promise<Response>} - The response object
  */
 async function authenticatedFetch(url, options = {}) {
+  const isFormData = options.body instanceof FormData;
+
   const defaultOptions = {
-    credentials: "include", // Important: Send/receive HTTP-only cookies
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    credentials: "include",
+    headers: isFormData
+      ? { ...options.headers } // Browser sets proper multipart/form-data header automatically
+      : {
+          "Content-Type": "application/json",
+          ...options.headers,
+        },
   };
 
   const finalOptions = { ...defaultOptions, ...options };
+
   let response = await fetch(url, finalOptions);
 
-  // If 401 Unauthorized, try to refresh the token
   if (response.status === 401) {
     try {
       const refreshResponse = await fetch(SERVER_URL + "api/v1/auth/refresh", {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       if (refreshResponse.ok) {
-        // Token refreshed successfully, retry the original request
         response = await fetch(url, finalOptions);
       } else {
-        // Refresh failed, redirect to login
         window.location.href = "login.html";
         return response;
       }
@@ -50,6 +50,7 @@ async function authenticatedFetch(url, options = {}) {
 
   return response;
 }
+
 
 // ==================== TAB MANAGEMENT ====================
 /**
