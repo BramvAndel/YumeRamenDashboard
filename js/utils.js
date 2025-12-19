@@ -51,7 +51,6 @@ async function authenticatedFetch(url, options = {}) {
   return response;
 }
 
-
 // ==================== TAB MANAGEMENT ====================
 /**
  * Switch to a different dashboard tab and save the preference
@@ -121,8 +120,37 @@ function displayErrorState(message) {
   }
 }
 
+// ==================== NOTIFICATION UTILS ====================
+/**
+ * Shows a notification ontop of the page, which you can x out of
+ * @param {string} message - The message to display
+ * @param {string} type - The type of message ('success' or 'error')
+ */
+function showNotification(message, type) {
+  const notification = document.createElement("div");
+  notification.className = `notification ${type}`;
+  notification.innerHTML = `
+    <span class="message">${message}</span>
+    <span class="close-btn">&times;</span>
+  `;
+  document.body.appendChild(notification);
+
+  // Close button handler
+  notification.querySelector(".close-btn").onclick = () => {
+    document.body.removeChild(notification);
+  };
+
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    if (document.body.contains(notification)) {
+      document.body.removeChild(notification);
+    }
+  }, 5000);
+}
+
 // ==================== MAKE FUNCTIONS GLOBAL ====================
 window.authenticatedFetch = authenticatedFetch;
 window.showTab = showTab;
 window.restoreActiveTab = restoreActiveTab;
 window.displayErrorState = displayErrorState;
+window.showNotification = showNotification;

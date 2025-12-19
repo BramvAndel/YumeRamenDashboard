@@ -319,7 +319,7 @@ async function showOrderDetails(orderId) {
       if (Array.isArray(order)) order = order[0];
     } catch (error) {
       console.error("Error fetching order details:", error);
-      alert("Failed to load order details");
+      showNotification("Failed to load order details", "error");
       return;
     }
   }
@@ -536,15 +536,17 @@ function updateOrderStatus(newStatus) {
 
         if (response.ok) {
           fetchOrders(); // Refresh the list
+          showNotification("Order status updated successfully!", "success");
         } else {
           const errorText = await response.text();
-          alert(
-            `Failed to update order status: ${response.status} ${response.statusText}\n${errorText}`
+          showNotification(
+            `Failed to update order status: ${response.status} ${response.statusText} - ${errorText}`,
+            "error"
           );
         }
       })
       .catch((error) => {
-        alert("Error updating status: " + error.message);
+        showNotification("Error updating status: " + error.message, "error");
       });
   }
 
