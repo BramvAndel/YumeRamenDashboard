@@ -172,7 +172,11 @@ async function handleMealSubmit(event) {
     formData.append("Name", name);
     formData.append("Price", price);
     formData.append("Ingredients", ingredients);
-    formData.append("image", imageInput.files[0]);
+    
+    // Only append image if a file is selected
+    if (imageInput.files && imageInput.files[0]) {
+      formData.append("image", imageInput.files[0]);
+    }
 
     const response = await authenticatedFetch(url, {
       method: method,
