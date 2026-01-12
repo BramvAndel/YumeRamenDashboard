@@ -337,17 +337,20 @@
     </div>
 
     <!-- Real-time Orders Demo List -->
-    <ul id="orders" style="margin:30px 0 0 0; padding:0; list-style:none;"></ul>
+    <ul
+      id="orders"
+      style="margin: 30px 0 0 0; padding: 0; list-style: none"
+    ></ul>
 
     <!-- Socket.io Client for Real-time Updates -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
       // Connect to the WebSocket server
-      const socket = io('http://localhost:3000');
+      const socket = io("http://yume-api.bram-jesse.sd-lab.nl");
 
       // Listen for new order events
-      socket.on('order:new', function(data) {
-        console.log('New order received:', data);
+      socket.on("order:new", function (data) {
+        console.log("New order received:", data);
         // Use the existing dashboard logic to update all order lists and stats
         if (window.fetchOrders) {
           window.fetchOrders();
