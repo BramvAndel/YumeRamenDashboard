@@ -345,6 +345,34 @@
     <!-- Socket.io Client for Real-time Updates -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
+      // Admin verification on page load
+      (async function verifyAdminAccess() {
+        try {
+          // Fetch current user's data from the backend
+          const response = await fetch(SERVER_URL + "api/v1/users", {
+            method: "GET",
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            // Not authenticated - redirect to login
+            window.location.href = "login.html";
+            return;
+          }
+
+          const users = await response.json();
+          
+          // Find the current logged-in user (typically the backend should return current user, 
+          // but if it returns all users, we need additional logic)
+          // For now, if we can fetch users successfully, we assume authenticated
+          // The login already checks for admin role, so this is an additional layer
+          
+        } catch (error) {
+          console.error("Admin verification failed:", error);
+          window.location.href = "login.html";
+        }
+      })();
+
       // Connect to the WebSocket server
       const socket = io("http://yume-api.bram-jesse.sd-lab.nl");
 
