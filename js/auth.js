@@ -40,7 +40,17 @@ async function handleLogin(e) {
 
     if (response.ok) {
       // Backend has set HTTP-only cookies with the accessToken
-      // Redirect to dashboard
+      // Check if user is an admin
+      if (data.role !== "admin") {
+        showError("Access denied. Admin privileges required.");
+        // Log out the user
+        await fetch(SERVER_URL + "api/v1/auth/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+        return;
+      }
+      // Redirect to dashboard for admin users
       window.location.href = "index.html";
     } else {
       showError(data.message || "Login failed. Please check your credentials.");
