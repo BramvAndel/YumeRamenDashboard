@@ -345,31 +345,6 @@
     <!-- Socket.io Client for Real-time Updates -->
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
-      // Admin-only protection
-      (async function checkAdminAccess() {
-        try {
-          const response = await fetch(SERVER_URL + "api/v1/auth/me", {
-            method: "GET",
-            credentials: "include",
-          });
-          
-          if (!response.ok) {
-            window.location.href = "login.html";
-            return;
-          }
-          
-          const userData = await response.json();
-          
-          if (userData.role !== "admin") {
-            alert("Access denied. Admin privileges required.");
-            window.location.href = "login.html";
-          }
-        } catch (error) {
-          console.error("Admin check failed:", error);
-          window.location.href = "login.html";
-        }
-      })();
-
       // Connect to the WebSocket server
       const socket = io("http://yume-api.bram-jesse.sd-lab.nl");
 
@@ -378,6 +353,10 @@
         console.log("New order received:", data);
         // Use the existing dashboard logic to update all order lists and stats
         if (window.fetchOrders) {
+          window.fetchOrders();
+        }
+      });
+    </script>
           window.fetchOrders();
         }
       });
