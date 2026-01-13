@@ -40,8 +40,13 @@ async function handleLogin(e) {
 
     if (response.ok) {
       // Backend has set HTTP-only cookies with the accessToken
-      // Check if user is an admin
-      if (data.role !== "admin") {
+      console.log("Login response data:", data);
+      
+      // Check if user is an admin (check both 'role' and 'Role' for case sensitivity)
+      const userRole = data.role || data.Role;
+      console.log("User role:", userRole);
+      
+      if (userRole !== "admin") {
         showError("Access denied. Admin privileges required.");
         // Log out the user
         await fetch(SERVER_URL + "api/v1/auth/logout", {
