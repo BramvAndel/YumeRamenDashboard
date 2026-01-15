@@ -374,7 +374,10 @@
       })();
 
       // Connect to the WebSocket server
-      const socket = io("http://yume-api.bram-jesse.sd-lab.nl");
+      const socket = io(SERVER_URL, {
+        transports: ['websocket', 'polling'],
+        withCredentials: true
+      });
 
       // Listen for new order events
       socket.on("order:new", function (data) {
