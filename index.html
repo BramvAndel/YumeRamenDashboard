@@ -379,13 +379,34 @@
         withCredentials: true
       });
 
+      // Add connection event listeners for debugging
+      socket.on("connect", function() {
+        console.log("✅ Socket.io connected successfully! ID:", socket.id);
+      });
+
+      socket.on("disconnect", function() {
+        console.log("❌ Socket.io disconnected");
+      });
+
+      socket.on("connect_error", function(error) {
+        console.error("Socket.io connection error:", error);
+      });
+
       // Listen for new order events
       socket.on("order:new", function (data) {
-        console.log("New order received:", data);
+        console.log("🔔 New order received:", data);
         // Use the existing dashboard logic to update all order lists and stats
         if (window.fetchOrders) {
+          console.log("Refreshing orders...");
           window.fetchOrders();
+        } else {
+          console.warn("fetchOrders function not available yet");
         }
+      });
+
+      // Listen for any other possible event names your backend might be using
+      socket.onAny((eventName, ...args) => {
+        console.log("📨 Socket event received:", eventName, args);
       });
     </script>
     <script src="js/utils.js"></script>
