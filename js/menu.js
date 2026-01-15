@@ -187,12 +187,13 @@ async function handleMealSubmit(event) {
     if (response.ok) {
       fetchMeals();
       document.getElementById("meal-modal").style.display = "none";
+      showNotification("Meal saved successfully!", "success");
     } else {
-      alert("Failed to save meal");
+      showNotification("Failed to save meal", "error");
     }
   } catch (error) {
     console.error("Error saving meal:", error);
-    alert("Error saving meal");
+    showNotification("Error saving meal", "error");
   }
 }
 
@@ -219,12 +220,13 @@ async function deleteMeal(mealId) {
     if (!response) return;
     if (response.ok) {
       fetchMeals();
+      showNotification("Meal deleted successfully!", "success");
     } else {
-      alert("Failed to delete meal");
+      showNotification("Failed to delete meal", "error");
     }
   } catch (error) {
     console.error("Error deleting meal:", error);
-    alert("Error deleting meal");
+    showNotification("Error deleting meal", "error");
   }
 }
 

@@ -124,8 +124,14 @@ async function handleSignup(e) {
     const data = await response.json();
 
     if (response.ok) {
-      alert("Account created successfully! Please sign in.");
-      window.location.href = "login.html";
+      showNotification(
+        "Account created successfully! Please sign in.",
+        "success"
+      );
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500);
+      return;
     } else {
       showError(data.message || "Failed to create account");
     }
