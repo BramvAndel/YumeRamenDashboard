@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fetchOrders();
     fetchMeals();
+    
+    // Auto-refresh orders every 5 seconds
+    setInterval(() => {
+        fetchOrders();
+    }, 5000);
 });
 
 // Global Event Listeners
